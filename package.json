@@ -9,11 +9,12 @@
   },
   "engines": {
     "node": "8.7.0"
-    },
+  },
   "keywords": [],
   "author": "WHMyrick",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "socket.io": "^2.0.3"
   }
 }
