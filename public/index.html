@@ -2,20 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
+    <title>Chat App</title>
 </head>
 <body>
     <p>Welcome to the chat app</p>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        let socket = io()
-        socket.on('connect',()=>{
-            console.log('Connected to server')
-        })
-        socket.on('disconnect',()=>{
-            console.log(`Disconnected from server`)
-        })
-    </script>
+    <script src="./js/index.js"></script>
+        
+    
 </body>
 </html>
