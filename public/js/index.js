@@ -1,4 +1,20 @@
 let socket = io()
+
+function scrollToBottom () {
+  // Selectors
+  let messages = $('#messages')
+  let newMessage = $('#messages > ul:nth-last-of-type(-n+2) li')
+  // Height
+  let clientHeight = messages.prop('clientHeight')
+  let scrollTop = messages.prop('scrollTop')
+  let elementHeight = newMessage.innerHeight()
+  let scrollHeight = messages.prop('scrollHeight')
+
+  if ((clientHeight + scrollTop + elementHeight) >= scrollHeight) {
+    messages.scrollTop(scrollHeight)
+  }
+}
+
 socket.on('connect', function () {
   console.log('Connected to server')
 })
@@ -13,6 +29,7 @@ socket.on('newMessage', function (message) {
   })
 
   $('#messages').append(html)
+  scrollToBottom()
 })
 
 socket.on('disconnect', function () {
@@ -39,6 +56,7 @@ socket.on('newLocationMessage', function (message) {
     url: message.url
   })
   $('#messages').append(html)
+  scrollToBottom()
 })
 
 let locationButton = $('#send-location')
@@ -59,3 +77,4 @@ locationButton.on('click', function () {
     alert(`Unable to fetch your location`)
   })
 })
+
