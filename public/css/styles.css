@@ -6,6 +6,7 @@ button:hover {
 }
 
 .chat__messages,
+.chat__messages > ul,
 .chat__sidebar ul {
   list-style-type: none
 }
