@@ -7,17 +7,38 @@ const path = require('path'),
   http = require('http'),
   server = http.createServer(app),
   io = socketIO(server),
+  {isRealString} = require('./utils/validation'),
 
-  { generateMessage, generateLocationMessage } = require('./utils/message')
+  { generateMessage, generateLocationMessage } = require('./utils/message'),
+  {Users} = require('./utils/users')
+
+let users = new Users()
 
 app.use(express.static(publicPath))
 
 io.on('connection', (socket) => {
   console.log(`New user connected`)
 
-  socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'))
+  socket.on('join', (params, callback) => {
+    if (!isRealString(params.name) || !isRealString(params.room)) {
+      return callback('Name and room name are required')
+    }
+    socket.join(params.room)
+    users.removeUser(socket.id)
+    users.addUser(socket.id, params.name, params.room)
 
-  socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'))
+    io.to(params.room).emit('updateUserList', users.getUserList(params.room))
+
+    // io.emit (targeting all) -> io.to('The Office Fans').emit
+    // socket.broadcast.emit (targeting all but sender) -> socket.broadcast.to('The Office Fans').emit
+    // socket.emit (one specific user targeted)
+
+    socket.emit('newMessage', generateMessage(`${params.room} Admin`, `Welcome to the ${params.room} room`))
+
+    socket.broadcast.to(params.room).emit('newMessage', generateMessage(`${params.room} Admin`, `${params.name} has joined`))
+
+    callback()
+  })
 
   socket.on('createMessage', (message, callback) => {
     io.emit('newMessage', generateMessage(message.from, message.text))
@@ -29,7 +50,11 @@ io.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    console.log('User was disconnected')
+    let user = users.removeUser(socket.id)
+    if (user) {
+      io.to(user.room).emit(`updateUserList`, users.getUserList(user.room))
+      io.to(user.room).emit(`newMessage`, generateMessage(`Admin`, `${user.name} has left`))
+    }
   })
 })
 
